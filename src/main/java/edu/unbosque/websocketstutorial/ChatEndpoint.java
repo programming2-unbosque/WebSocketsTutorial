@@ -18,12 +18,13 @@ import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint(value = "/chat/{username}", decoders = MessageDecoder.class, encoders = MessageEncoder.class)
 public class ChatEndpoint {
+
     private Session session;
     private static final Set<ChatEndpoint> chatEndpoints = new CopyOnWriteArraySet<>();
     private static HashMap<String, String> users = new HashMap<>();
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("username") String username) throws IOException, EncodeException {
+    public void onOpen(Session session, @PathParam("username") String username) {
 
         this.session = session;
         chatEndpoints.add(this);
@@ -36,13 +37,13 @@ public class ChatEndpoint {
     }
 
     @OnMessage
-    public void onMessage(Session session, Message message) throws IOException, EncodeException {
+    public void onMessage(Session session, Message message) {
         message.setFrom(users.get(session.getId()));
         broadcast(message);
     }
 
     @OnClose
-    public void onClose(Session session) throws IOException, EncodeException {
+    public void onClose(Session session) {
         chatEndpoints.remove(this);
         Message message = new Message();
         message.setFrom(users.get(session.getId()));
@@ -55,17 +56,16 @@ public class ChatEndpoint {
         // Do error handling here
     }
 
-    private static void broadcast(Message message) throws IOException, EncodeException {
+    private static void broadcast(Message message) {
         chatEndpoints.forEach(endpoint -> {
             synchronized (endpoint) {
                 try {
-                    endpoint.session.getBasicRemote()
-                            .sendObject(message);
+                    System.out.println("Sending message to " + users.get(endpoint.session.getId()));
+                    endpoint.session.getBasicRemote().sendObject(message);
                 } catch (IOException | EncodeException e) {
                     e.printStackTrace();
                 }
             }
         });
     }
-
 }

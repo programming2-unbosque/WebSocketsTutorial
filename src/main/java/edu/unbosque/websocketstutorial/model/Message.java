@@ -1,14 +1,10 @@
 package edu.unbosque.websocketstutorial.model;
 
 public class Message {
+
     private String from;
     private String to;
     private String content;
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
 
     public String getFrom() {
         return from;
@@ -32,5 +28,10 @@ public class Message {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString();
     }
 }
